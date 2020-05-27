@@ -59,10 +59,10 @@ parse_director_json <- function(string_in){
 
 
 # Import csv files
-movies_data <- fread("./data/movies_metadata.csv", fill=T)
-keywords_data <- fread("./data/keywords.csv", fill=T)
-credits_data <- fread("./data/credits.csv", fill=T)
-ratings_data <- fread("./data/ratings_small.csv", fill=T)
+movies_data <- fread("./data/movies_metadata.csv", encoding="UTF-8", fill=T)
+keywords_data <- fread("./data/keywords.csv", encoding="UTF-8", fill=T)
+credits_data <- fread("./data/credits.csv", encoding="UTF-8", fill=T)
+ratings_data <- fread("./data/ratings_small.csv", encoding="UTF-8", fill=T)
 
 # Remove unsed columns
 movies_data[, belongs_to_collection := NULL]
