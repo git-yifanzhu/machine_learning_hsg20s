@@ -68,7 +68,40 @@ get_popular_movies(10)
 
 
 # ------------------------------
-# 3 k-NN for Genres, Keywords, Director, Cast
+# 3 Logistic Regression
+# ------------------------------
+
+# Predict the movies a user is most likely to have a rating of 5 towards
+get_recommend_logistic <- function(user_id, num=10){
+	user_rating <- ratings_data[userId==user_id, ]
+	user_rating$likes <- user_rating$rating==5
+
+	user_rating <- merge(user_rating, movies_data, by.x="movieId", by.y="id")
+
+	logistic_mod <- glm(likes ~ budget + popularity + 
+		revenue + runtime + vote_average + 
+		vote_count + year, 
+		data=user_rating)
+	
+	target_ids <- setdiff(movies_data$id, user_rating$movieId)
+	target <- movies_data[id %in% target_ids, ]
+
+	target$likes <- predict(logistic_mod, newdata=target)
+
+	setorder(target, -likes)
+
+	return(target[1:num,
+		c("title", "genres", "year", "director", "cast")])
+}
+
+# User with the most ratings
+user_id <- names(sort(table(ratings_data$userId), decreasing=T))[1]
+
+get_recommend_logistic(user_id, 10)
+
+
+# ------------------------------
+# 4 k-NN for Genres, Keywords, Director, Cast
 # ------------------------------
 
 # Calculate the similarity score of a feature between object and taret
@@ -123,7 +156,7 @@ get_recommend_kNN("Interstellar", 10, c(1, 1, 1, 1))
 
 
 # ------------------------------
-# 4 Plot Based Recommender
+# 5 Plot Based Recommender
 # ------------------------------
 
 # Calculate the TF-IDF Based Similarity of all the movies in our dataset
@@ -180,7 +213,7 @@ get_recommend_plot("The Dark Knight", 10)
 
 
 # ------------------------------
-# 5 Collaborative Filtering Based on User Ratings
+# 6 Collaborative Filtering Based on User Ratings
 # ------------------------------
 
 # Constract user-movie matrix where entries are users' ratings
@@ -213,7 +246,7 @@ rating_pred <- rating_mat_svd$u[, 1:3] %*%
 
 rating_pred[!is.na(rating_mat_raw)] <- 0
 
-# Forecast the movies that the user is likely to have highest ratings of
+# Predict the movies that a user is likely to have highest ratings of
 get_recommend_user <- function(user_id, num=10){
 	row <- which(row_idx==user_id)
 	target_ids <- col_idx[sort(rating_pred[row, ], decreasing=T, index.return=T)$ix[1:num]]
