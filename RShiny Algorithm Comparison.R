@@ -1,0 +1,134 @@
+
+
+# #logistic regression
+# get_recommend_logistic(user_id, 10)
+# 
+# # 6 Collaborative Filtering Based on User Ratings
+# get_recommend_user(10)
+# 
+# 
+# 
+# #get knn and chagne weight inputs
+# get_recommend_kNN("Interstellar", 10, c(1, 1, 1, 1))
+# 
+# # 5 Plot Based Recommender
+# #input movies
+# get_recommend_plot("The Dark Knight", 10)
+
+
+library(shinyWidgets)
+library(shiny)
+library(shinythemes)
+
+
+# we can not source the whole main.R (takes to long)
+# source("main.R")
+
+source2 <- function(file, start, end, ...) {
+    file.lines <- scan(file, what=character(), skip=start-1, nlines=end-start+1, sep='\n')
+    file.lines.collapsed <- paste(file.lines, collapse='\n')
+    source(textConnection(file.lines.collapsed), ...)
+}
+#only source the functions in the beginning and not the hole file
+source2('main.R',1,156)
+
+# get_recommend_logistic(user_id, 10)
+# get_recommend_kNN("Interstellar", 10, c(1, 1, 1, 1))
+# get_recommend_plot("The Dark Knight", 10)
+
+
+
+# Define server logic 
+server <- function(input, output, session) {
+    
+    movies <- unique(movies_data$title)
+    output$Input_Movie <-  renderUI(fluidRow(column(6,selectInput("Selected_Movie",label = 'test', choices = movies))))
+
+    
+    knn_react <- reactive(get_recommend_kNN(input$Selected_Movie, 10, c(1, 1, 1, 1))$title)
+    output$KNN_table <- renderTable(knn_react())
+    
+    # reco_plot_react <- reactive(output <- get_recommend_plot(input$Selected_Movie, 10)$title)
+    # output$reco_plot <-renderTable(reco_plot_react())
+    
+}
+
+
+# Define UI for application that draws a histogram
+ui <- shinyUI(
+        fluidPage(
+            # tags$header(tags$div(HTML(paste0('<center>',tags$img(src = "https://i.ibb.co/r5krrdz/logo.png"),'</center>')))),
+            setBackgroundImage(src = 'https://i.ibb.co/vXqDmnh/background.jpg'),
+            tags$header('Movie Recommender'),
+
+            tags$h1('MOVIE RECOMMENDER'),
+            tags$head(tags$style(HTML("@import url('https://fonts.googleapis.com/css?family=Roboto:700,900');
+                                      h1 {
+                                        font-weight: 5000;
+                                        line-height: 5;
+                                        font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+                                        line-height: 1;
+                                        margin-left: auto;
+                                        margin-right: auto;
+                                        padding-bottom: 20px;
+                                        padding-top: 20px;
+                                        text-align: center;
+                                        width: 80%;
+                                        font-size: 5rem;
+                                        color: red;}"))
+                ),
+
+            wellPanel(fluidRow(
+                column(6,
+                       uiOutput('Input_Movie'))),
+                fluidRow(column(6,
+                                tags$h2('KNN Movie Recommendations'),
+                                tableOutput('KNN_table')),
+                         column(6,
+                                tags$h2('Plot Movie Recommendations'),
+                                tableOutput('reco_plot')))),
+            #
+            # title = div(img(src = "https://media.giphy.com/media/FQkGpU34nbXrO/giphy.gif", width = "250px", height = "48px", style="margin-top: -14px; margin-right:-14px;margin-left:-14px", height = 50)),
+            # theme = shinytheme("cyborg"),
+            # tabPanel(tags$b('Recommend Movie'),
+            #                 fluidRow(h3("Select the movies you like") ,
+            #                          wellPanel(
+            #                              fluidRow(column(6,selectInput("input_genre2", "Genre #2",genre_list)),
+            #                                       column(6,uiOutput("ui2") )),
+            #                              fluidRow(column(6,selectInput("input_genre3", "Genre #3",genre_list)),
+            #                                       column(6,uiOutput("ui3")))
+            #                              #submitButton("Update List of Movies")
+            #                          )
+            #                 ),
+                            # wellPanel(
+                            #     fluidRow(
+                            #         column(3,sliderInput("year", label = "Select Year Range", min = 1902,max = 2015, value = c(1902, 2015))),
+                            #         column(2,checkboxGroupInput("genre1", "Select Genres",
+                            #                                     c("Action" = "Action",
+                            #                                       "Adventure" = "Adventure",
+                            #                                       "Animation" = "Animation",
+                            #                                       "Children"="Children" ))),
+                            #         column(2,checkboxGroupInput("genre2", "",
+                            #                                     c("Comedy" = "Comedy",
+                            #                                       "Crime" = "Crime",
+                            #                                       "Documentary" = "Documentary",
+                            #                                       "Drama"="Drama" ))),
+                            #         column(2,checkboxGroupInput("genre3", "",
+                            #                                     c("Fantasy" = "Fantasy",
+                            #                                       "Film Noir" = "Film.Noir",
+                            #                                       "Horror" = "Horror",
+                            #                                       "Musical"="Musical" ))),
+                            #         column(2,checkboxGroupInput("genre4", "",
+                            #                                     c("Mystery" = "Mystery",
+                            #                                       "Romance" = "Romance",
+                            #                                       "Sci Fi" = "Sci.Fi",
+                            #                                       "Thriller"="Thriller" ))),
+                            #         column(4,h3("You Might Like The Following Movies as well"),tableOutput("table"))
+                            #     )
+                            # )
+                   # ),
+            )
+    )
+    
+# Run the application 
+shinyApp(ui = ui, server = server)
