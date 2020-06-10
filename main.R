@@ -318,6 +318,8 @@ formattable(get_recommend_user(564), align = "l")
 #------------------------------
 # 7 Decision Tree Algorithm
 #------------------------------
+library(tree)
+
 
 colnames(ratings_data) <- c("userId","id","rating")
 ratings_data
@@ -403,6 +405,7 @@ plot(movie_tree)
 text(movie_tree)
 title(main = "Decision Tree for user 564")
 
+alt = 2
 #for alternative 1: predict ratings of unwatched movies
 if (alt == 1){
   Data.pred$predicted_rating <- predict(movie_tree, newdata = Data.pred)
