@@ -22,6 +22,6 @@ Today, platforms such as Netflix or Amazon offer tens of thousands of films whic
 
 ### Check the different Movie Suggestions in Shiny App
 - Open the Rshiny Algorithm Comparison.R and run the App on your local host
-Please Note: Due to the fact that all algortihms are loaded in the app, it takes about 5 minutes until the app is running since the main.R file will be sourced.
+- Please Note: Due to the fact that all algortihms are loaded in the app, it takes about 5 minutes until the app is running since the main.R file will be sourced. Therefore, the app is also deployed under www....)
 
 #add gif to (will be added)
