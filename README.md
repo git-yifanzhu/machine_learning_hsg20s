@@ -14,8 +14,8 @@ Today, platforms such as Netflix or Amazon offer tens of thousands of films whic
 - Clone the repository https://github.com/git-yifanzhu/machine_learning_hsg20s.git
 
 ### Data loading
-- First, go into data folder and unzip the RawData.zip
-- Execute the Data Processing.R file to process the data for the main analysis
+- Go to data folder and unzip the files from RawData.zip directly into this folder
+- Execute the Data Processing.R file to process (movies.RData) for the main analysis
 
 ### Calculate and Build ML algorithms
 - Execute the main.R file for estimating the different ML algorithms
