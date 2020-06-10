@@ -1,6 +1,6 @@
 # Development of a movie recommendation engine
 ## File Structure
-1.  ....PDF (Working Paper)
+1.  Development of a movie recommendation engine.pdf (Working Paper)
 2. main.R (ML Algorithms: Logistic Regression, k-NN, Plot Based Recommender, Collaborative Filtering, Decision Trees)
 3. Data Processing.R (Data Preparation, Descriptive Statitsics and Visualisations)
 4. RShiny Algorithm Comparison.R (Proof of Concept for comparing the algortihms)
