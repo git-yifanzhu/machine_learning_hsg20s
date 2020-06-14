@@ -1,24 +1,13 @@
 
-
-# #logistic regression
-# get_recommend_logistic(user_id, 10)
-# 
-# # 6 Collaborative Filtering Based on User Ratings
-# get_recommend_user(10)
-# 
-# 
-# 
-# #get knn and chagne weight inputs
-# get_recommend_kNN("Interstellar", 10, c(1, 1, 1, 1))
-# 
-# # 5 Plot Based Recommender
-# #input movies
-# get_recommend_plot("The Dark Knight", 10)
-
-
+#laod packages
 library(shinyWidgets)
 library(shiny)
 library(shinythemes)
+library(shinycssloaders)
+library(data.table)
+library(dplyr)
+library(tidytext)
+library(formattable)
 
 
 # we can not source the whole main.R (takes to long)
@@ -30,39 +19,50 @@ source2 <- function(file, start, end, ...) {
     source(textConnection(file.lines.collapsed), ...)
 }
 #only source the functions in the beginning and not the hole file
-source2('main.R',1,156)
-
-# get_recommend_logistic(user_id, 10)
-# get_recommend_kNN("Interstellar", 10, c(1, 1, 1, 1))
-# get_recommend_plot("The Dark Knight", 10)
-
+source2('main.R',1,180)
 
 
 # Define server logic 
 server <- function(input, output, session) {
     
+    #input for movie selection
     movies <- unique(movies_data$title)
-    output$Input_Movie <-  renderUI(fluidRow(column(6,selectInput("Selected_Movie",label = 'test', choices = movies))))
-
+    numb_rec <- reactive(input$Recslider)
+    output$Input_Movie <-  renderUI(fluidRow(column(12,selectInput("Selected_Movie",label = 'Select a Movie for Recommendations', choices = movies))))
+    Movdescription <- reactive(get_movie_data(input$Selected_Movie))
+    output$movie_description <- renderTable(Movdescription()$overview, colnames = FALSE)
     
-    knn_react <- reactive(get_recommend_kNN(input$Selected_Movie, 10, c(1, 1, 1, 1))$title)
-    output$KNN_table <- renderTable(knn_react())
+    #output of knn movie rec
+    knn_react <- reactive(get_recommend_kNN(input$Selected_Movie, numb_rec(), c(1, 1, 1, 1))$title)
+    output$KNN_table <- renderTable(knn_react(), colnames = FALSE)
     
-    # reco_plot_react <- reactive(output <- get_recommend_plot(input$Selected_Movie, 10)$title)
-    # output$reco_plot <-renderTable(reco_plot_react())
+    #output of plot based movie rec
+    reco_plot_react <- reactive(get_recommend_plot(input$Selected_Movie, numb_rec())$title)
+    output$reco_plot <-renderTable(reco_plot_react(), colnames = FALSE)
     
+    # #logistic regression rec
+    # logistic_react <- reactive(get_recommend_logistic(input$numInput, 10)%>% select('title'))
+    # output$logOutput <-renderTable(logistic_react(), colnames = FALSE)
+    # 
+    # #Collaborative Filtering rec
+    # cola_filt<- reactive(get_recommend_user(input$numInput)%>% select('title'))
+    # output$Colaborative_filt <- renderTable(cola_filt(), colnames=FALSE)
 }
 
 
-# Define UI for application that draws a histogram
+# Define User Interface
 ui <- shinyUI(
-        fluidPage(
-            # tags$header(tags$div(HTML(paste0('<center>',tags$img(src = "https://i.ibb.co/r5krrdz/logo.png"),'</center>')))),
-            setBackgroundImage(src = 'https://i.ibb.co/vXqDmnh/background.jpg'),
-            tags$header('Movie Recommender'),
-
-            tags$h1('MOVIE RECOMMENDER'),
-            tags$head(tags$style(HTML("@import url('https://fonts.googleapis.com/css?family=Roboto:700,900');
+    
+    fluidPage(
+        setBackgroundImage(src = 'https://i.ibb.co/vXqDmnh/background.jpg'),
+        
+        theme = shinytheme("cyborg"),
+        # tags$header(tags$div(HTML(paste0('<center>',tags$img(src = "https://i.ibb.co/r5krrdz/logo.png"),'</center>')))),
+        # tags$head(tags$div(class = "txt",
+        #                    tags$link(rel = "stylesheet", type = "text/css", href = "netflix_style.css", 'Movie Recommender Engine'))),
+        # tags$style(HTML(".tabs-above > .nav > li[class=active] > a {background-color: #FF0000; color: #FFF;}")),
+        tags$h1('MOVIE RECOMMENDER'),
+        tags$head(tags$style(HTML("@import url('https://fonts.googleapis.com/css?family=Roboto:700,900');
                                       h1 {
                                         font-weight: 5000;
                                         line-height: 5;
@@ -76,59 +76,43 @@ ui <- shinyUI(
                                         width: 80%;
                                         font-size: 5rem;
                                         color: red;}"))
-                ),
-
-            wellPanel(fluidRow(
-                column(6,
-                       uiOutput('Input_Movie'))),
-                fluidRow(column(6,
-                                tags$h2('KNN Movie Recommendations'),
-                                tableOutput('KNN_table')),
-                         column(6,
-                                tags$h2('Plot Movie Recommendations'),
-                                tableOutput('reco_plot')))),
-            #
-            # title = div(img(src = "https://media.giphy.com/media/FQkGpU34nbXrO/giphy.gif", width = "250px", height = "48px", style="margin-top: -14px; margin-right:-14px;margin-left:-14px", height = 50)),
-            # theme = shinytheme("cyborg"),
-            # tabPanel(tags$b('Recommend Movie'),
-            #                 fluidRow(h3("Select the movies you like") ,
-            #                          wellPanel(
-            #                              fluidRow(column(6,selectInput("input_genre2", "Genre #2",genre_list)),
-            #                                       column(6,uiOutput("ui2") )),
-            #                              fluidRow(column(6,selectInput("input_genre3", "Genre #3",genre_list)),
-            #                                       column(6,uiOutput("ui3")))
-            #                              #submitButton("Update List of Movies")
-            #                          )
-            #                 ),
-                            # wellPanel(
-                            #     fluidRow(
-                            #         column(3,sliderInput("year", label = "Select Year Range", min = 1902,max = 2015, value = c(1902, 2015))),
-                            #         column(2,checkboxGroupInput("genre1", "Select Genres",
-                            #                                     c("Action" = "Action",
-                            #                                       "Adventure" = "Adventure",
-                            #                                       "Animation" = "Animation",
-                            #                                       "Children"="Children" ))),
-                            #         column(2,checkboxGroupInput("genre2", "",
-                            #                                     c("Comedy" = "Comedy",
-                            #                                       "Crime" = "Crime",
-                            #                                       "Documentary" = "Documentary",
-                            #                                       "Drama"="Drama" ))),
-                            #         column(2,checkboxGroupInput("genre3", "",
-                            #                                     c("Fantasy" = "Fantasy",
-                            #                                       "Film Noir" = "Film.Noir",
-                            #                                       "Horror" = "Horror",
-                            #                                       "Musical"="Musical" ))),
-                            #         column(2,checkboxGroupInput("genre4", "",
-                            #                                     c("Mystery" = "Mystery",
-                            #                                       "Romance" = "Romance",
-                            #                                       "Sci Fi" = "Sci.Fi",
-                            #                                       "Thriller"="Thriller" ))),
-                            #         column(4,h3("You Might Like The Following Movies as well"),tableOutput("table"))
-                            #     )
-                            # )
-                   # ),
-            )
+        ),
+        
+        
+        tabsetPanel(
+            
+            
+            tabPanel('Movie Recommendations KNN vs. Plot-based Algorithms',
+                     wellPanel(
+                         fluidRow(
+                             column(6,
+                                    uiOutput('Input_Movie'),
+                                    sliderInput("Recslider", label = 'Number of Recommendations', min = 0, max = 20, value = 10),),
+                             tags$style(HTML(".js-irs-0 .irs-single, .js-irs-0 .irs-bar-edge, .js-irs-0 .irs-bar {background: red}")),
+                             column(6,tags$h6('Plot of selected Movie'),tableOutput('movie_description'))),
+                         
+                         fluidRow(column(6,
+                                         tags$h4('KNN Movie Recommendations'),
+                                         tableOutput('KNN_table') %>% withSpinner(color = getOption("spinner.color", default = "#FF0000"))),
+                                  column(6,
+                                         tags$h4('Plot based Movie Recommendations'),
+                                         tableOutput('reco_plot') %>% withSpinner(color = getOption("spinner.color", default = "#FF0000")))))),
+            
+            tabPanel('Testing Collaborative Filtering vs. Logistic Regression',
+                     wellPanel(
+                         fluidRow(
+                             column(6,
+                                    numericInput("numInput", label = 'Select a User Profile (number between 1 - 564)', min = 1, max = 564, value = 564))),
+                         fluidRow(column(6,
+                                         tags$h4('Collaborative Filtering'),
+                                         tableOutput('Colaborative_filt') %>% withSpinner(color = getOption("spinner.color", default = "#FF0000"))),
+                                  column(6,
+                                         tags$h4('Logistic Regression Recommendations'),
+                                         tableOutput('logOutput') %>% withSpinner(color = getOption("spinner.color", default = "#FF0000"))))))
+        )
     )
+)
+    
     
 # Run the application 
 shinyApp(ui = ui, server = server)
