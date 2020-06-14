@@ -1,0 +1,174 @@
+# Machine Learning
+# University of St. Gallen
+# May 2020
+# Movie Recommendation Engine
+# Yifan, Daniel, Nils, Jan
+
+# 
+# This file deals with the recommendation system.
+
+# ==============================
+# RECOMMENDATION ENGINE !!!
+# ==============================
+
+
+# Load packages
+library(data.table)
+library(dplyr)
+library(tidytext)
+library(formattable)
+
+# Load data
+load("./data/movies.RData")
+set.seed(1)
+
+
+# Define public function to be used in this part
+get_movie_data <- function(movie_title, invert=F){
+  if (invert==F) {
+    return(movies_data[title == movie_title, ])
+  } else {
+    return(movies_data[-which(movies_data$title==movie_title), ])
+  }
+}
+
+
+# ------------------------------
+# 1 Best-Rated Movies
+# ------------------------------
+
+# Retrieve the best-rated movies
+get_best_rated_movies <- function(num=10){
+  setorder(movies_data, -weighted_rating)
+  return(movies_data[1:num, 
+                     c("title", "weighted_rating")])
+}
+movies_data$weighted_rating <- round(movies_data$weighted_rating,digits = 4)
+get_best_rated_movies(10)
+formattable(get_best_rated_movies(10), align = 'l')
+
+# ------------------------------
+# 2 Popular Movies
+# ------------------------------
+
+# Retrieve the most popular movies
+get_popular_movies <- function(num=10){
+  setorder(movies_data, -popularity)
+  return(movies_data[1:num, 
+                     c("title", "popularity")])
+}
+
+# ------------------------------
+# 4 k-NN for Genres, Keywords, Director, Cast
+# ------------------------------
+
+# Calculate the similarity score of a feature between object and target
+get_similarity <- function(obj_feature, target_feature){
+  obj_feature <- unlist(obj_feature)
+  target_feature <- unlist(target_feature)
+  
+  similarity_unit <- 1 / (length(obj_feature) * length(target_feature))
+  
+  similarity <- 0
+  
+  for (i in 1:length(obj_feature)) {
+    for (j in 1:length(target_feature)) {
+      if (obj_feature[i] == target_feature[j]) {
+        similarity <- similarity + similarity_unit
+      }
+      
+      
+    }
+  }
+  
+  return(similarity)
+}
+
+# Retrieve the most similar movies based on genres, keywords, director, and cast
+get_recommend_kNN <- function(obj_title, num, weights){
+  
+  obj <- get_movie_data(obj_title)
+  target <- get_movie_data(obj_title, T)
+  
+  similarity_scores <- vector()
+  
+  for (i in 1:nrow(target)) {
+    similarity = sum(
+      c(get_similarity(obj$genres, target[i, ]$genres), 
+        get_similarity(obj$keywords, target[i, ]$keywords), 
+        get_similarity(obj$director, target[i, ]$director),
+        get_similarity(obj$cast, target[i, ]$cast)) * 
+        weights)
+    similarity_scores <- c(similarity_scores, similarity)
+  }
+  
+  target[, similarity_score := similarity_scores]
+  
+  setorder(target, -similarity_score)
+  
+  return(target[1:num,
+                c("title", "genres", "keywords", "director", "cast","id")])
+}
+
+# ------------------------------
+# 5 Plot Based Recommender
+# ------------------------------
+
+# Calculate the TF-IDF Based Similarity of all the movies in our dataset
+test <- reactiveVal(
+  
+  plots <- movies_data %>%
+    select(id, title, text=overview),
+  
+  plots_words <- plots %>%
+    unnest_tokens(word, text) %>%
+    filter(!word %in% stop_words$word) %>%
+    count(id, title, word, sort=TRUE),
+  
+  total_words <- plots_words %>%
+    group_by(id, title) %>% 
+    summarize(total = sum(n)),
+  
+  plots_words <- left_join(plots_words, total_words, by=c("id", "title")),
+  plots_words <- plots_words %>% bind_tf_idf(word, id, n),
+  
+  row_idx = sort(unique(plots_words$id)),
+  col_idx = unique(plots_words$word),
+  
+  tfidf_mat <- matrix(0, nrow=length(row_idx), ncol=length(col_idx)),
+  for (i in 1:nrow(plots_words)) {
+    row <- which(plots_words[i, ]$id==row_idx)
+    col <- which(plots_words[i, ]$word==col_idx)
+    tfidf_mat[row, col] = plots_words[i, ]$tf_idf
+  }
+  
+  cos_sim_mat <- tfidf_mat %*% t(tfidf_mat)
+)
+
+# Retrieve the most similar movies based on plots
+get_recommend_plot <- function(obj_title, num=10){
+  obj_id <- get_movie_data(obj_title)$id
+  obj_idx <- which(row_idx==obj_id)
+  
+  obj_cos_sim <- test()[, obj_idx]
+  
+  cos_sim <- cbind(row_idx, obj_cos_sim)
+  cos_sim <- cos_sim[sort(obj_cos_sim, decreasing=T, index.return=T)$ix, ]
+  
+  target_ids <- cos_sim[2:(num+1), "row_idx"]
+  
+  targets <- data.frame()
+  for (target_id in target_ids) {
+    target <- movies_data[id==target_id, 
+                          c("title", "genres", "director", "cast","id")]
+    targets <- rbind(targets, target)
+  }
+  
+  return(targets)
+}
+
+
+
+
+
+

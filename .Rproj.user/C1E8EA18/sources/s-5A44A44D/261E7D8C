@@ -1,0 +1,25 @@
+{
+    "collab_server" : "",
+    "contents" : "",
+    "created" : 1592162010857.000,
+    "dirty" : false,
+    "encoding" : "UTF-8",
+    "folds" : "",
+    "hash" : "2154692760",
+    "id" : "261E7D8C",
+    "lastKnownWriteTime" : 1592162298,
+    "last_content_update" : 1592162298237,
+    "path" : "~/Desktop/ML PROJEKT/machine_learning_hsg20s/RShiny Algorithm Comparison.R",
+    "project_path" : "RShiny Algorithm Comparison.R",
+    "properties" : {
+        "cursorPosition" : "114,4",
+        "scrollLine" : "84"
+    },
+    "read_only" : false,
+    "read_only_alternatives" : [
+    ],
+    "relative_order" : 1,
+    "source_on_save" : false,
+    "source_window" : "",
+    "type" : "r_source"
+}

@@ -1,0 +1,9 @@
+install.packages('rsconnect')
+
+rsconnect::setAccountInfo(name='jan-scheidegger',
+                          token='BEAD43C8A48E5D545ED871C9F3CB5C55',
+                          secret='tq9sPanaSfpv9i2xW2ND/GJjpHds7Jo5gMLu41VO')
+library(rsconnect)
+rsconnect::deployApp('/Users/jan_s/Desktop/shinytest')
+
+forgetDeployment()

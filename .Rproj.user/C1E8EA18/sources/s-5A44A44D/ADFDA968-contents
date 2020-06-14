@@ -5,25 +5,17 @@
 # Yifan, Daniel, Nils, Jan
 
 # 
-# This file deals with data cleaning process.
+# This file is part 1 and deals with data processing and visualisations.
 # 
 
 # ==============================
-# DATA PREP !!!
+# DATA PREPARATION
 # ==============================
-
-# ==============================
-# DATA VISUALIZATION
-# ==============================
-
-# ==============================
-# RECOMMENDATION ENGINE
-# ==============================
-
-
 # Load packages
 library(data.table)
 library(stringr)
+library(bit64)
+library(plm)
 
 
 # Define function to parse JSON formatted columns
@@ -112,7 +104,6 @@ movies_data$keywords <- lapply(movies_data$keywords, parse_json, "name", 3)
 movies_data$production_companies <- lapply(movies_data$production_companies, parse_json, "name", 3)
 movies_data$production_countries <- lapply(movies_data$production_countries, parse_json, "name", 3)
 movies_data$cast <- lapply(movies_data$cast, parse_json, "name", 3)
-
 movies_data$crew <- lapply(movies_data$crew, parse_director_json)
 
 # Rename Columns
@@ -135,6 +126,9 @@ movies_data <- movies_data[id != 158011, ]
 movies_data <- movies_data[id != 244506, ]
 movies_data <- movies_data[id != 362045, ]
 
+#check if balanced data -> TRUE
+is.pbalanced(movies_data)
+
 # Adjust ratings data accordingly
 movies_id <- unique(movies_data$id)
 ratings_data <- ratings_data[movieId %in% movies_id]
@@ -149,13 +143,63 @@ movies_data[, weighted_rating :=
 
 save(movies_data, ratings_data, file="./data/movies.RData")
 
-
 # ==============================
 # 2 DATA VISUALIZATION
 # ==============================
+#---------- figure 1 
+library("PerformanceAnalytics")
+chart.Correlation(movies_data %>% select('budget','popularity','revenue','runtime',
+                                         'vote_average','vote_count','year','weighted_rating'), histogram = TRUE)
+
+# Introduce profitability column out of revenue and budget to get rid of correlation
+# movies_data <- movies_data %>% 
+#   mutate(profit = revenue - budget,
+#          return_on_investment = (profit/budget)*100)
+# Now, budget does not have a good distribution but otherwise only take revenue or profit. 
+
+
+#--------- Check descriptive Statistics and distributions:
+summary(movies_data)
+
+
+## distributions
+ggplot(movies_data, aes(movies_data$vote_average)) + geom_density(color="darkblue", fill="cornflowerblue")
+ggplot(movies_data, aes(movies_data$budget)) + geom_density(color="darkblue", fill="cornflowerblue")#skewed
+ggplot(movies_data, aes(movies_data$revenue)) + geom_density(color="darkblue", fill="cornflowerblue")#skewed
+ggplot(movies_data, aes(movies_data$return_on_investment)) + geom_density(color="darkblue", fill="cornflowerblue")# not using
+ggplot(movies_data, aes(movies_data$runtime)) + geom_density(color="darkblue", fill="cornflowerblue")
+ggplot(movies_data, aes(movies_data$vote_average)) + geom_density(color="darkblue", fill="cornflowerblue")
+ggplot(movies_data, aes(movies_data$vote_count)) + geom_density(color="darkblue", fill="cornflowerblue") #skewed
+
+#target variable
+hist(movies_data$weighted_rating)#high curtosis but ok
+hist(ratings_data$rating)#ok
+
+##################################
+# Visualization
+##################################
+
+# join datasets
+colnames(ratings_data) <- c("userId","id","rating")
+all_data <- merge(ratings_data, movies_data, by ="id")
+
+# visualize ratings
+mean(ratings_data$rating)
+median(ratings_data$rating)
+sd(ratings_data$rating)
+ratings_table <- as.data.frame(table(ratings_data$rating))
+ratings_table$fraction <- round(((ratings_table$Freq/nrow(ratings_data))*100), digits = 4)
+colnames(ratings_table) <- c('rate', 'freq', 'fraction')
+ratings_table
+
+# plot a bar chart of ratings data
+graph_ratings <- ggplot(ratings_table, aes(x = rate, y = fraction, group = 1)) +  geom_bar(stat="identity")+
+ xlab("Ratings") + ylab('Percentage') + ggtitle('Rating prevalence', subtitle = 'Mid/high ratings seem to be prevalent in the sample')
+graph_ratings
 
 
 
-# ==============================
-# 3 RECOMMENDATION ENGINE
-# ==============================
+
+
+
+
