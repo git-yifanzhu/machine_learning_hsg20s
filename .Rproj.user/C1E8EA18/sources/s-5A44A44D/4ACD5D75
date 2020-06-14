@@ -5,14 +5,14 @@
     "dirty" : false,
     "encoding" : "UTF-8",
     "folds" : "",
-    "hash" : "2737779233",
+    "hash" : "0",
     "id" : "4ACD5D75",
-    "lastKnownWriteTime" : 1592163746,
-    "last_content_update" : 1592163746777,
+    "lastKnownWriteTime" : 1592163951,
+    "last_content_update" : 1592163951664,
     "path" : "~/Desktop/ML PROJEKT/machine_learning_hsg20s/README.md",
     "project_path" : "README.md",
     "properties" : {
-        "cursorPosition" : "8,953",
+        "cursorPosition" : "1,23",
         "scrollLine" : "0"
     },
     "read_only" : false,
