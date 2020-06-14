@@ -1,0 +1,25 @@
+{
+    "collab_server" : "",
+    "contents" : "",
+    "created" : 1592163504115.000,
+    "dirty" : false,
+    "encoding" : "UTF-8",
+    "folds" : "",
+    "hash" : "0",
+    "id" : "1B214DE5",
+    "lastKnownWriteTime" : 1591812130,
+    "last_content_update" : 1591812130,
+    "path" : "~/Desktop/ML PROJEKT/machine_learning_hsg20s/Data Processing.R",
+    "project_path" : "Data Processing.R",
+    "properties" : {
+        "cursorPosition" : "186,0",
+        "scrollLine" : "132"
+    },
+    "read_only" : false,
+    "read_only_alternatives" : [
+    ],
+    "relative_order" : 3,
+    "source_on_save" : false,
+    "source_window" : "",
+    "type" : "r_source"
+}

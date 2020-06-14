@@ -1,0 +1,25 @@
+{
+    "collab_server" : "",
+    "contents" : "",
+    "created" : 1592163508106.000,
+    "dirty" : false,
+    "encoding" : "UTF-8",
+    "folds" : "",
+    "hash" : "0",
+    "id" : "9BFA2AE2",
+    "lastKnownWriteTime" : 1591811303,
+    "last_content_update" : 1591811303,
+    "path" : "~/Desktop/ML PROJEKT/machine_learning_hsg20s/main.R",
+    "project_path" : "main.R",
+    "properties" : {
+        "cursorPosition" : "235,0",
+        "scrollLine" : "10"
+    },
+    "read_only" : false,
+    "read_only_alternatives" : [
+    ],
+    "relative_order" : 4,
+    "source_on_save" : false,
+    "source_window" : "",
+    "type" : "r_source"
+}
